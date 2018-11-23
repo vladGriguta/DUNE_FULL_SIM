@@ -20,7 +20,7 @@ resolution = 0.05 # 50 nanoseconds
 
 
 # Call functions to read from files
-location = 'oldQuantumEff'
+location = '../dataDUNE/oldQuantumEff'
 timeSN,nr_events_SN = readFiles.Read_SN(location)
 timeAr,nr_events_Ar = readFiles.Read_Ar39(location)
 
