@@ -16,6 +16,7 @@ import genericFunctions
 import readFiles
 
 
+
 # Define constant parameters in the simulation
 simulationTime = 10*1000000  # 10 seconds in microseconds
 resolution = 0.05 # 50 nanoseconds
@@ -43,18 +44,18 @@ eventsSN = pd.DataFrame()
 eventsSN['eventTime'] = np.linspace(0,int(simulationTime/2500)-1,int(simulationTime/2500))*(2500)+1250
 eventsSN['event'] = np.linspace(0,int(simulationTime/2500)-1,int(simulationTime/2500))
 
+
+"""
 # Create another array to be used for imposing threshold on the distribution
 # of photons among Photon Detectors
-
 threshold2 = [1,2] # number of PDs,number of Photons
-"""
 SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, threshold=18,
                                             integTime=2.5, eventsSN=eventsSN, trigDur=2.5,
                                             resolution=resolution,noise=noise, threshold2=threshold2,
                                             time_and_PD=time_and_PD)
 """
 
-thresholdVals = [18]
+thresholdVals = [18,22]
 integTimeVals = [2,3]
 threshold2Vals = [[1,2],[1,3]]
 trigDur = 2.5
@@ -67,8 +68,10 @@ df_eff, df_fake = genericFunctions.GridSearch(events, eventsSN, thresholdVals, i
 df1 = pd.Panel.to_frame(df_eff)
 df1.to_csv('../dataDUNE/resultsFullSim/efficiencies_'+str(trigDur)+'.csv', sep=',')
 df2 = pd.Panel.to_frame(df_fake)
-df2.to_csv('fakeRate_'+str(trigDur)+'.csv', sep=',')
+df2.to_csv('../dataDUNE/resultsFullSim/fakeRate_'+str(trigDur)+'.csv', sep=',')
 
 
 
+import plottingFunctions
+plottingFunctions.plotGridSearch(df_eff,df_fake)
 

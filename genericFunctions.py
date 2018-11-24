@@ -227,7 +227,7 @@ def GridSearch(events, eventsSN, thresholdVals, integTimeVals, threshold2Vals, t
                     integTime_local, threshold2_local, trigDur,resolution,noise,time_and_PD)
                 
                 df_eff[str(threshold_local)].iloc[j][k] = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
-                df_fake[str(threshold_local)].iloc[j][k] = (len(fakeTrig) / simulationTime)
+                df_fake[str(threshold_local)].iloc[j][k] = (len(fakeTrig)* 1000000 / simulationTime)
                 print('This run was finished')
                 
     return df_eff, df_fake
