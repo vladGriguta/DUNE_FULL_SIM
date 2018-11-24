@@ -89,7 +89,7 @@ def secondCondition(threshold2,time_and_PD,photons_in_region,photonsPassed):
     return False
 
 
-def Candidates(events, threshold, integTime, eventsSN, trigDur,resolution,noise,threshold2,time_and_PD):
+def Candidates(events, eventsSN, threshold, integTime, threshold2, trigDur,resolution,noise,time_and_PD):
     """
     This function searches through the 
     
@@ -164,15 +164,17 @@ def Candidates(events, threshold, integTime, eventsSN, trigDur,resolution,noise,
                         SNTrig.append(time_of_event)
                     else:
                         fakeTrig.append(time_of_event)
+            """
             else:
                 print('The event did not succeed due to second threshold')
+            """
                     
         photonsPassed += int(events[i-1-integBins])
     
     return SNCandidates, fakeTrig, SNTrig
 
 
-def GridSearch(events, eventsSN, thresholdVals, integTimeVals, trigDur,resolution):
+def GridSearch(events, eventsSN, thresholdVals, integTimeVals, threshold2Vals, trigDur,resolution,noise,time_and_PD,simulationTime):
 
     """
     Function that searches through a grid of threshold and integTime vals and
@@ -188,36 +190,55 @@ def GridSearch(events, eventsSN, thresholdVals, integTimeVals, trigDur,resolutio
     threshold2Vals:    A numpy array with the maximum number of photons to hit at
                    least one Photon Detector in integTime
     resolution:    The resolution assumed for the photodetector system
+    noise:         Mean number of Ar39 photons per microsecond
+    time_and_PD:   Numpy array with the timing and PD hit by all photons recorded
+    simulationTime:Obvious
     
+    Output variables:
+    df_eff, df_fake:
+        Pandas Panels (3D Dataframes) storing the SN detection efficiency
+        and the rate of fake triggers per second for each combination of the 
+        variables in the grid search
     """
 
-    index = list(map(str, thresholdVals))
-    columns = list(map(str, integTimeVals))
+    index1 = list(map(str, thresholdVals))
+    index2 = list(map(str, integTimeVals))
+    index3 = list(map(str, threshold2Vals))
     
-    df_eff = pd.DataFrame(index = index,columns = columns)
-    df_fake = pd.DataFrame(index = index,columns = columns)
-    
-    # Needed to compute the trigger
-    mean_events = np.mean(events)
+    df_eff = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
+    df_fake = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
 
     progress = 0    
     for i in range(0,len(thresholdVals)):
         for j in range(0,len(integTimeVals)):
-            if(((i+1)*(j+1)) % int((len(thresholdVals)+1)*(len(integTimeVals)+1)/10) == 0):
-                progress += 10
-                print(str(progress) + ' % Completed!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-            integTime_local = integTimeVals[j]
-            
-            # Trigger depends on the accepted duration of the SN event
-            integBins = int(integTime_local/resolution)
-            threshold = thresholdVals[i] * float(mean_events*integBins)
-            
-            [SNCandidates, fakeTrig, _] = Candidates(events, integBins, threshold, integTime_local, eventsSN,trigDur,resolution)
-            df_eff[str(integTimeVals[j])][str(thresholdVals[i])] = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
-            df_fake[str(integTimeVals[j])][str(thresholdVals[i])] = (len(fakeTrig) / 2.5)
-
+            for k in range(0,len(threshold2Vals)):
+                
+                # Print progress if applicable
+                if(((i+1)*(j+1)(k+1)) % int((len(thresholdVals)+1)*(len(integTimeVals)+1)
+                    *(len(threshold2Vals)+1)/10) == 0):
+                    progress += 10
+                    print(str(progress) + ' % Completed!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+                
+                threshold_local = thresholdVals[i]
+                integTime_local = integTimeVals[j]
+                threshold2_local = threshold2Vals[k]
+                
+                [SNCandidates, fakeTrig, _] = Candidates(events, eventsSN, threshold_local, 
+                    integTime_local, threshold2_local, trigDur,resolution,noise,time_and_PD)
+                
+                df_eff[str(threshold_local)].iloc[j][k] = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
+                df_fake[str(threshold_local)].iloc[j][k] = (len(fakeTrig) / simulationTime)
+                print('This run was finished')
+                
     return df_eff, df_fake
-    
+
+
+
+
+
+
+
+
 
 # Visualizing the results
 def Plot_Trigger_Distrib(eventsSN,trigEf,fakeRate,threshold,SN_event_nr_bins,mean_events,SN_event_time):
@@ -254,13 +275,13 @@ def Plot_Trigger_Distrib(eventsSN,trigEf,fakeRate,threshold,SN_event_nr_bins,mea
     plt.savefig('week5/SNtime'+str(SN_event_time)+'.thr'+str(thr) +'.jpg', format='jpg')
     
     
-def PlotGridSearch(df_eff, efficiency = True):
-    X, Y = np.meshgrid(list(map(float, df_eff.index)),list(map(float, df_eff.columns)))
+def PlotGridSearch(df, efficiency = True):
+    X, Y = np.meshgrid(list(map(float, df.index)),list(map(float, df.columns)))
     if(efficiency):
-        plt.scatter(X, Y, c = np.transpose(df_eff.values), cmap='viridis', linewidth=0.5);
+        plt.scatter(X, Y, c = np.transpose(df.values), cmap='viridis', linewidth=0.5);
     else:
         # Take log of the fake rate
-        temp = np.transpose(df_eff.values)
+        temp = np.transpose(df.values)
         colors = np.log(temp.astype(np.float64))
         plt.scatter(X, Y, c = colors, cmap='viridis', linewidth=0.5);
     plt.colorbar()

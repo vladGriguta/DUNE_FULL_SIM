@@ -5,6 +5,8 @@ Created on Wed Nov 21 20:41:11 2018
 
 @author: vladgriguta
 """
+
+
 # This is the high level coding structure where all functions
 # are called
 
@@ -15,20 +17,22 @@ import readFiles
 
 
 # Define constant parameters in the simulation
-simulationTime = 2.5*1000000  # 2.5 seconds in microseconds
+simulationTime = 10*1000000  # 10 seconds in microseconds
 resolution = 0.05 # 50 nanoseconds
 
 
 # Call functions to read from files
-location = '../dataDUNE/oldQuantumEff'
+location = '../dataDUNE/10Seconds'
+print('Reading data from files... Simulation time = '+str(simulationTime/1000000)+' seconds')
 timeSN,nr_events_SN = readFiles.Read_SN(location)
 timeAr,nr_events_Ar = readFiles.Read_Ar39(location)
+print('Finished reading from files.')
 
 # Compute the noise (mean number of photons from Ar39 per microseconds)
 noise = float(nr_events_Ar)/simulationTime
 
-print('The number of Ar39 events in '+str(simulationTime)+' seconds is '
-      +str(nr_events_Ar)+ '. Compare with expected number of (about) 1.8 photons per us.')
+print('The mean number of Ar39 events per microsecond is '+str(nr_events_Ar/simulationTime)
+      +'. Compare with expected number of (about) 1.8 photons per microsecond.')
 
 ### Testing the code
 
@@ -43,13 +47,27 @@ eventsSN['event'] = np.linspace(0,int(simulationTime/2500)-1,int(simulationTime/
 # of photons among Photon Detectors
 
 threshold2 = [1,2] # number of PDs,number of Photons
-
-SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, threshold=13,
+"""
+SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, threshold=18,
                                             integTime=2.5, eventsSN=eventsSN, trigDur=2.5,
                                             resolution=resolution,noise=noise, threshold2=threshold2,
                                             time_and_PD=time_and_PD)
+"""
 
-SNEff = np.count_nonzero(SNCandidates)/len(SNCandidates)
+thresholdVals = [18]
+integTimeVals = [2,3]
+threshold2Vals = [[1,2],[1,3]]
+trigDur = 2.5
+
+
+df_eff, df_fake = genericFunctions.GridSearch(events, eventsSN, thresholdVals, integTimeVals, 
+                        threshold2Vals, trigDur,resolution,noise,time_and_PD,simulationTime)
+
+# Save the pandas pannels
+df1 = pd.Panel.to_frame(df_eff)
+df1.to_csv('../dataDUNE/resultsFullSim/efficiencies_'+str(trigDur)+'.csv', sep=',')
+df2 = pd.Panel.to_frame(df_fake)
+df2.to_csv('fakeRate_'+str(trigDur)+'.csv', sep=',')
 
 
 
