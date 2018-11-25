@@ -141,6 +141,7 @@ def Candidates(events, eventsSN, threshold, integTime, threshold2, trigDur,resol
             progress += 10
             print(str(progress) + ' % Completed for threshold='+str(threshold)+
                   ', integrationTime = '+str(integTime)+
+                  ', threshold2 = '+str(threshold2)+
                   ', trigDuration = '+str(trigDur))
         
         # update number of events by substracting the element furthest away from
@@ -214,7 +215,7 @@ def GridSearch(events, eventsSN, thresholdVals, integTimeVals, threshold2Vals, t
             for k in range(0,len(threshold2Vals)):
                 
                 # Print progress if applicable
-                if(((i+1)*(j+1)(k+1)) % int((len(thresholdVals)+1)*(len(integTimeVals)+1)
+                if(((i+1)*(j+1)*(k+1)) % int((len(thresholdVals)+1)*(len(integTimeVals)+1)
                     *(len(threshold2Vals)+1)/10) == 0):
                     progress += 10
                     print(str(progress) + ' % Completed!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
@@ -231,10 +232,6 @@ def GridSearch(events, eventsSN, thresholdVals, integTimeVals, threshold2Vals, t
                 print('This run was finished')
                 
     return df_eff, df_fake
-
-
-
-
 
 
 
@@ -273,24 +270,3 @@ def Plot_Trigger_Distrib(eventsSN,trigEf,fakeRate,threshold,SN_event_nr_bins,mea
             verticalalignment='top', bbox=props)
     thr = int(threshold / (SN_event_nr_bins*mean_events))
     plt.savefig('week5/SNtime'+str(SN_event_time)+'.thr'+str(thr) +'.jpg', format='jpg')
-    
-    
-def PlotGridSearch(df, efficiency = True):
-    X, Y = np.meshgrid(list(map(float, df.index)),list(map(float, df.columns)))
-    if(efficiency):
-        plt.scatter(X, Y, c = np.transpose(df.values), cmap='viridis', linewidth=0.5);
-    else:
-        # Take log of the fake rate
-        temp = np.transpose(df.values)
-        colors = np.log(temp.astype(np.float64))
-        plt.scatter(X, Y, c = colors, cmap='viridis', linewidth=0.5);
-    plt.colorbar()
-    plt.xlabel('Threshold / per mean # events in interval')
-    plt.ylabel('Interval of integration / microseconds')
-    if(efficiency):
-        plt.title('SN Detection Efficiency')
-        plt.savefig('week5/GridSearchEffPreliminaryNov.jpg', format='jpg')
-    else:
-        plt.title('Fake Events Rate')
-        plt.savefig('week5/GridSearchFakePreliminaryNov.jpg', format='jpg')
-    plt.show()

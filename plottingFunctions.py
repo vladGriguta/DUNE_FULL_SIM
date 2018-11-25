@@ -7,62 +7,77 @@ Created on Sat Nov 24 19:31:57 2018
 """
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
-
-def plotGridSearch(df_eff,df_fake):
-    
-    eff = pd.Panel.to_xarray(df_eff)
-    #fake = pd.Panel.to_xarray(df_fake)
-    
-    for i in range(0,len(eff.items)):
-        for j in range(0,len(eff.major_axis)):
-            for k in range(0,len(eff.minor_axis)):
-                eff[i][j][k] = i+j+k
-    
-    th1 = eff.items
-    th1_ = np.zeros(len(th1))
-    for i in range(len(th1)):
-        th1_[i] = int(th1[i])
-        
-    inTime = eff.major_axis
-    inTime_ = np.zeros(len(inTime))
-    for i in range(len(inTime)):
-        inTime_[i] = int(inTime[i])
-        
-    th2 = eff.minor_axis
-    th2_ = []
-    for i in range(len(th2)):
-        th2_.append(str(th2[i]))
-    
-    import matplotlib.cm as cm
-    colors = cm.rainbow(np.linspace(start=0, stop=1, num=len(th2)))
-    
-    keys = th2_
-    vals = colors
-    myDict = {}
-    for key, val in zip(keys,vals):
-        myDict[key] = val
-    
-    vals = eff.values
-    vals_ = np.zeros(np.shape(vals))
-    for i in range(np.shape(vals)[0]):
-        for j in range(np.shape(vals)[1]):
-            for k in range(np.shape(vals)[2]):
-                vals_[i][j][k] = int(vals[i][j][k])
+def plotGridSearch(panel,noise,trigDur,location='../dataDUNE/10SecondsResults',isEff=True):
+    """
+    This is the function designed for plotting the grid search values. It takes
+    as input the panel (3D DataFrame) containing SN efficiencies (or fake triggering
+    rates) for each value along the three axis (items=threshold1;
+    major_axis=integration time; minor_axis=threshold2) and it delivers 3D plots 
+    of this data.
     
     
+    """
+    # In next part the panel characteristics are converted to 3D arrays that 
+    # can be plotted using the matplotlib library    
+    ###########################################################################
     
-    th1, inTime, th2 = np.meshgrid(th1_, inTime_,th2_, indexing='ij')
+    temp = panel.items
+    th1 = np.zeros(np.shape(temp))
+    for i in range(len(temp)):
+        th1[i] = int(temp[i])
+    temp = panel.major_axis
+    inTime = np.zeros(np.shape(temp))
+    for i in range(len(temp)):
+        inTime[i] = int(temp[i])
+    th2 = panel.minor_axis
     
-    colors = np.zeros(np.concatenate((np.array(np.shape(th2)),np.array([4]))))
-    for i in range(np.shape(th2)[0]):
-        for j in range(np.shape(th2)[1]):
-            for k in range(np.shape(th2)[2]):
-                colors[i][j][k] = myDict[th2[i][j][k]]
+    possible_colors = ['red','orange','yellow','green','blue','purple']
+    colors = possible_colors[0:len(th2)]
+    #colors = cm.rainbow(np.linspace(start=0, stop=1, num=len(th2)))
+    
+    th2_to_color = {}
+    for key, val in zip(th2,colors):
+        th2_to_color[key] = val
+    
+    vals = panel.values
+    ##########################################################################
     
     
-    import matplotlib.pyplot as plt
+    th1_, inTime_ = np.meshgrid(th1, inTime, indexing='ij')
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     
-    ax.scatter(th1,inTime,vals,c=colors.reshape(8,4),linewidth=0.5,alpha=0.8)
+    # add each point individually
+    groups = th2
+    for i in range(len(groups)):
+        if(isEff == True):
+            ax.scatter(th1_,inTime_,vals[:][:][i],c=th2_to_color[groups[i]],label=groups[i],linewidth=0.5,alpha=0.8)
+        else:
+            # For fake trigger rate represent in logarithmic scale
+            ax.scatter(th1_,inTime_,np.log10(vals[:][:][i]),c=th2_to_color[groups[i]],label=groups[i],linewidth=0.5,alpha=0.8)
+        
+    plt.legend(loc=2) 
+    ax.set_xlabel('Threshold1 / \u03C3')
+    ax.set_ylabel('Integration Time / seconds')
+
+    
+    
+    if(isEff == True):
+        ax.set_zlabel('SN Detection Efficiency')
+        fig.savefig(location+'efficiency_trigDur='+str(trigDur)+'.png',format='png')
+    else:
+        ax.set_zlabel('Log(Rate of False Triggers)')
+        fig.savefig(location+'fakeRate_trigDur='+str(trigDur)+'.png',format='png')
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

@@ -33,6 +33,8 @@ print('Finished reading from files.')
 noise = float(nr_events_Ar)/simulationTime
 
 print('The mean number of Ar39 events per microsecond is '+str(nr_events_Ar/simulationTime)
+      +'. Compare with expected number of (about) 0.8 photons per microsecond.')
+print('The mean number of Ar39 photons per microsecond is '+str(len(timeAr)/simulationTime)
       +'. Compare with expected number of (about) 1.8 photons per microsecond.')
 
 ### Testing the code
@@ -57,7 +59,7 @@ SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, thre
 
 thresholdVals = [18,22]
 integTimeVals = [2,3]
-threshold2Vals = [[1,2],[1,3]]
+threshold2Vals = [[1,5],[2,3]]
 trigDur = 2.5
 
 
@@ -70,8 +72,10 @@ df1.to_csv('../dataDUNE/resultsFullSim/efficiencies_'+str(trigDur)+'.csv', sep='
 df2 = pd.Panel.to_frame(df_fake)
 df2.to_csv('../dataDUNE/resultsFullSim/fakeRate_'+str(trigDur)+'.csv', sep=',')
 
-
-
 import plottingFunctions
-plottingFunctions.plotGridSearch(df_eff,df_fake)
+locationPlots = '../dataDUNE/10SecondsResults'
+plottingFunctions.plotGridSearch(panel=df_eff,noise=noise, trigDur=trigDur,
+                                 location=locationPlots, isEff=True)
+plottingFunctions.plotGridSearch(panel=df_fake,noise=noise, trigDur=trigDur,
+                                 location=locationPlots, isEff=False)
 
