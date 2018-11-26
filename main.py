@@ -62,8 +62,10 @@ integTimeVals = [2,3]
 threshold2Vals = [[1,5],[2,3]]
 trigDur = 2.5
 
+def sendStaticData():
+    return events, eventsSN, trigDur,resolution,noise,time_and_PD,simulationTime
 
-df_eff, df_fake = genericFunctions.GridSearch(events, eventsSN, thresholdVals, integTimeVals, 
+df_eff, df_fake, results = genericFunctions.GridSearch(events, eventsSN, thresholdVals, integTimeVals, 
                         threshold2Vals, trigDur,resolution,noise,time_and_PD,simulationTime)
 
 # Save the pandas pannels
