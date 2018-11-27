@@ -21,6 +21,15 @@ import readFiles
 simulationTime = 10*1000000  # 10 seconds in microseconds
 resolution = 0.05 # 50 nanoseconds
 
+trigDur = float(input('Enter the trig dead time: '))
+thresholdVals = [18,22]
+integTimeVals = [0.1,1]
+threshold2Vals = [[1,7],[3,3]]
+
+print('Run the simulation for:\nsimulationTime = '+str(simulationTime/1000000)+
+      ' seconds,\nresolution = '+str(resolution)+'\ntrigDuration = '+str(trigDur)+
+      '\nthreshold1 = '+str(thresholdVals)+'\nintegrationTime = '+str(integTimeVals)+
+      '\nthreshold2 = '+str(integTimeVals))
 
 # Call functions to read from files
 location = '../dataDUNE/10Seconds'
@@ -57,10 +66,6 @@ SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, thre
                                             time_and_PD=time_and_PD)
 """
 
-thresholdVals = [18,22]
-integTimeVals = [2,3]
-threshold2Vals = [[1,5],[2,3]]
-trigDur = 2.5
 
 
 df_eff, df_fake = genericFunctions.GridSearch(events, eventsSN, thresholdVals, integTimeVals, 
