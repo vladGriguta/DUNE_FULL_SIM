@@ -117,7 +117,6 @@ class GridSearch:
             varyingData.append([x[i],y[i],z[i]])
         
         constantData = [events,eventsSN,trigDur,resolution,noise,time_and_PD,simulationTime]
-        #results = []
         
         import CandidateSearch
         #results.append(Pool().map(CandidateSearch.Candidates.CandidateSearch(),[x,y,z]))

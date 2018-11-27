@@ -70,7 +70,13 @@ GS = genericFunctions.GridSearch(thresholdVals, integTimeVals, threshold2Vals,ev
                                  eventsSN, trigDur,resolution,noise,time_and_PD,simulationTime)
 
 results = GS.ActualGridSearch()
+
 print(results)
+
+locationResults = '../dataDUNE/10SecondsResults'
+with open(locationResults+'resultsParallelImplementation.txt', 'w') as f:
+    for item in results:
+        f.write("%s\n" % item)
 
 
 """
