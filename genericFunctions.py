@@ -79,11 +79,18 @@ class GridSearch:
         and the rate of fake triggers per second for each combination of the 
         variables in the grid search
     """
-    def __init__(self, thresholdVals, integTimeVals, threshold2Vals):
+    def __init__(self, thresholdVals, integTimeVals, threshold2Vals, events, eventsSN,
+                 trigDur,resolution,noise,time_and_PD,simulationTime):
         self.thresholdVals = thresholdVals
         self.integTimeVals = integTimeVals
         self.threshold2Vals = threshold2Vals
-        
+        self.events=events
+        self.eventsSN = eventsSN
+        self.trigDur = trigDur
+        self.resolution = resolution
+        self.noise = noise
+        self.time_and_PD = time_and_PD
+        self.simulationTime = simulationTime
     
     def ActualGridSearch(self):
 
@@ -92,27 +99,61 @@ class GridSearch:
         x = self.thresholdVals
         y = self.integTimeVals
         z = self.threshold2Vals
+        events = self.events
+        eventsSN = self.eventsSN
+        trigDur = self.trigDur
+        resolution = self.resolution 
+        noise = self.noise
+        time_and_PD = self.time_and_PD
+        simulationTime = self.simulationTime
         
         y_,x_,z_ = np.meshgrid(y,x,z)
         x = x_.flatten()
         y = y_.flatten()
         z = z_.flatten()
         
-        a = []
+        varyingData = []
         for i in range(len(x)):
-            a.append([x[i],y[i],z[i]])
+            varyingData.append([x[i],y[i],z[i]])
         
+        constantData = [events,eventsSN,trigDur,resolution,noise,time_and_PD,simulationTime]
         #results = []
         
         import CandidateSearch
         #results.append(Pool().map(CandidateSearch.Candidates.CandidateSearch(),[x,y,z]))
         import multiprocessing
+        import itertools
         
-        
-        pool = multiprocessing.Pool(processes=4)
-        result_list = pool.map(CandidateSearch, a)
-        return result_list
+        n_proc=multiprocessing.cpu_count()
+        with multiprocessing.Pool(processes=n_proc) as pool:
+            result_list=pool.starmap(CandidateSearch.Candidates, zip(varyingData, itertools.repeat(constantData)))
+            pool.close()
 
+        return result_list
+        
+        """
+        import multiprocessing
+        import itertools
+        import numpy as np
+        
+        def some_function(n, constant):
+            print('calculating {1:.2f}*{0:.2f}^2'.format(n, constant))
+            f = constant*n**2
+            print('done')
+            return f
+        
+        data=np.arange(1,100)
+        constant=8
+        
+        #find out how many processes are available
+        n_proc=multiprocessing.cpu_count()
+        #run some function in parallel
+        with multiprocessing.Pool(processes=n_proc) as pool:
+                result=pool.starmap(some_function, zip(data, itertools.repeat(constant)))
+                pool.close()
+        """
+        
+        
         
         """
         import multiprocessing

@@ -53,7 +53,7 @@ def secondCondition(threshold2,time_and_PD,photons_in_region,photonsPassed):
 
 
 
-class Candidates:
+def Candidates(threshold, integTime, threshold2):
     """
     This function searches through the 
     
@@ -79,75 +79,64 @@ class Candidates:
     SNTrig:       1D Array containing the time when the triggering algorithm flagged
                   a SN event correctly
     """
-    def __init__(self,events, eventsSN, trigDur,resolution,noise,time_and_PD,simulationTime):
-        self.events=events
-        self.eventsSN = eventsSN
-        self.trigDur = trigDur
-        self.resolution = resolution
-        self.noise = noise
-        self.time_and_PD = time_and_PD
-        self.simulationTime = simulationTime
+        
+    # Declare output variables
+    SNCandidates = np.zeros(len(self.eventsSN))
+    SNTrig = []
+    fakeTrig = []
     
+    # Update threshold to account for different integTime
+    threshold_in_photons = threshold * self.noise * integTime 
     
-    def CandidateSearch(self,threshold, integTime, threshold2):
+    # Compute the number of bins corresponding to the integTime
+    integBins = int(integTime/self.resolution)
+    
+    # Start by computing how many events there are in the first integTime
+    photons_in_region = int(np.sum(self.events[0:integBins]))
+    # And which PDs are being hit
+    photonsPassed = 0
+    
+    # Go through the array and get those points where the total number of events
+    # counted is above the threshold_in_photons
+    progress = 0
+    for i in range(integBins+1,len(self.events)):
+        # Start by printing the progress
+        if(i % int(len(self.events)/10) == 0):
+            progress += 10
+            print(str(progress) + ' % Completed for threshold='+str(threshold)+
+                  ', integrationTime = '+str(integTime)+
+                  ', threshold2 = '+str(threshold2)+
+                  ', trigDuration = '+str(self.trigDur))
         
-        # Declare output variables
-        SNCandidates = np.zeros(len(self.eventsSN))
-        SNTrig = []
-        fakeTrig = []
+        # update number of events by substracting the element furthest away from
+        # current position and adding the element in current position
+        photons_in_region = int(photons_in_region - self.events[i-1-integBins] + self.events[i])
         
-        # Update threshold to account for different integTime
-        threshold_in_photons = threshold * self.noise * integTime 
         
-        # Compute the number of bins corresponding to the integTime
-        integBins = int(integTime/self.resolution)
-        
-        # Start by computing how many events there are in the first integTime
-        photons_in_region = int(np.sum(self.events[0:integBins]))
-        # And which PDs are being hit
-        photonsPassed = 0
-        
-        # Go through the array and get those points where the total number of events
-        # counted is above the threshold_in_photons
-        progress = 0
-        for i in range(integBins+1,len(self.events)):
-            # Start by printing the progress
-            if(i % int(len(self.events)/10) == 0):
-                progress += 10
-                print(str(progress) + ' % Completed for threshold='+str(threshold)+
-                      ', integrationTime = '+str(integTime)+
-                      ', threshold2 = '+str(threshold2)+
-                      ', trigDuration = '+str(self.trigDur))
+        if(photons_in_region>threshold_in_photons):
             
-            # update number of events by substracting the element furthest away from
-            # current position and adding the element in current position
-            photons_in_region = int(photons_in_region - self.events[i-1-integBins] + self.events[i])
-            
-            
-            if(photons_in_region>threshold_in_photons):
+            if(secondCondition(threshold2,self.time_and_PD,photons_in_region,photonsPassed) == True):
+                # The time when the event is flagged as SN is defined as
+                time_of_event = (i-float(integBins/2))*self.resolution
                 
-                if(secondCondition(threshold2,self.time_and_PD,photons_in_region,photonsPassed) == True):
-                    # The time when the event is flagged as SN is defined as
-                    time_of_event = (i-float(integBins/2))*self.resolution
+                # Check if trigger has not activated recently
+                recentTrig = checkRecentTrig(time_of_event,SNTrig,self.trigDur,self.trigDur)
+                
+                if(not recentTrig):            
+                    # Check if flag is within vicinity of an actual SN event
+                    if(np.min(abs(time_of_event-self.eventsSN['eventTime'])) < integTime):
+                        SNCandidates[np.argmin(abs(time_of_event-self.eventsSN['eventTime']))] +=1
+                        SNTrig.append(time_of_event)
+                    else:
+                        fakeTrig.append(time_of_event)
+            """
+            else:
+                print('The event did not succeed due to second threshold')
+            """
                     
-                    # Check if trigger has not activated recently
-                    recentTrig = checkRecentTrig(time_of_event,SNTrig,self.trigDur,self.trigDur)
-                    
-                    if(not recentTrig):            
-                        # Check if flag is within vicinity of an actual SN event
-                        if(np.min(abs(time_of_event-self.eventsSN['eventTime'])) < integTime):
-                            SNCandidates[np.argmin(abs(time_of_event-self.eventsSN['eventTime']))] +=1
-                            SNTrig.append(time_of_event)
-                        else:
-                            fakeTrig.append(time_of_event)
-                """
-                else:
-                    print('The event did not succeed due to second threshold')
-                """
-                        
-            photonsPassed += int(self.events[i-1-integBins])
-        
-        eff = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
-        fakeRate = (len(fakeTrig)* 1000000 / self.simulationTime)
-        
-        return eff, fakeRate
+        photonsPassed += int(self.events[i-1-integBins])
+    
+    eff = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
+    fakeRate = (len(fakeTrig)* 1000000 / self.simulationTime)
+    
+    return eff, fakeRate

@@ -66,9 +66,8 @@ threshold2Vals = [[1,5],[2,3]]
 trigDur = 2.5
 
 
-CS = CandidateSearch.Candidates(events, eventsSN, trigDur,resolution,noise,
-                                time_and_PD,simulationTime)
-GS = genericFunctions.GridSearch(thresholdVals, integTimeVals, threshold2Vals)
+GS = genericFunctions.GridSearch(thresholdVals, integTimeVals, threshold2Vals,events,
+                                 eventsSN, trigDur,resolution,noise,time_and_PD,simulationTime)
 
 results = GS.ActualGridSearch()
 print(results)
