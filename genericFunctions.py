@@ -87,7 +87,7 @@ class GridSearch:
     
     def ActualGridSearch(self):
 
-        from pathos.multiprocessing import ProcessingPool as Pool
+        #from pathos.multiprocessing import ProcessingPool as Pool
         
         x = self.thresholdVals
         y = self.integTimeVals
@@ -98,13 +98,38 @@ class GridSearch:
         y = y_.flatten()
         z = z_.flatten()
         
-        results = []
+        a = []
+        for i in range(len(x)):
+            a.append([x[i],y[i],z[i]])
+        
+        #results = []
         
         import CandidateSearch
-        results.append(Pool().map(CandidateSearch.Candidates.CandidateSearch,x,y,z))
+        #results.append(Pool().map(CandidateSearch.Candidates.CandidateSearch(),[x,y,z]))
+        import multiprocessing
         
-        return results
         
+        pool = multiprocessing.Pool(processes=4)
+        result_list = pool.map(CandidateSearch, a)
+        return result_list
+
+        
+        """
+        import multiprocessing
+        import numpy as np
+        
+        data_pairs = [ [3,5], [4,3], [7,3], [1,6] ]
+        
+        # define what to do with each data pair ( p=[3,5] ), example: calculate product 
+        def myfunc(p):
+            product_of_list = np.prod(p)
+            return product_of_list
+        
+        if __name__ == '__main__':
+            pool = multiprocessing.Pool(processes=4)
+            result_list = pool.map(myfunc, data_pairs)
+            print(result_list)
+        """
         
         """
         index1 = list(map(str, self.thresholdVals))

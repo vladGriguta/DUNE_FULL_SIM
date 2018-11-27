@@ -47,7 +47,9 @@ eventsSN = pd.DataFrame()
 eventsSN['eventTime'] = np.linspace(0,int(simulationTime/2500)-1,int(simulationTime/2500))*(2500)+1250
 eventsSN['event'] = np.linspace(0,int(simulationTime/2500)-1,int(simulationTime/2500))
 
-
+import gc
+del timeSN, timeAr
+gc.collect()
 """
 # Create another array to be used for imposing threshold on the distribution
 # of photons among Photon Detectors
@@ -69,7 +71,7 @@ CS = CandidateSearch.Candidates(events, eventsSN, trigDur,resolution,noise,
 GS = genericFunctions.GridSearch(thresholdVals, integTimeVals, threshold2Vals)
 
 results = GS.ActualGridSearch()
-
+print(results)
 
 
 """
