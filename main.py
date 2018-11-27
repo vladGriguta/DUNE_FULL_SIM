@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import genericFunctions
 import readFiles
+import CandidateSearch
 
 
 
@@ -62,12 +63,16 @@ integTimeVals = [2,3]
 threshold2Vals = [[1,5],[2,3]]
 trigDur = 2.5
 
-def sendStaticData():
-    return events, eventsSN, trigDur,resolution,noise,time_and_PD,simulationTime
 
-df_eff, df_fake, results = genericFunctions.GridSearch(events, eventsSN, thresholdVals, integTimeVals, 
-                        threshold2Vals, trigDur,resolution,noise,time_and_PD,simulationTime)
+CS = CandidateSearch.Candidates(events, eventsSN, trigDur,resolution,noise,
+                                time_and_PD,simulationTime)
+GS = genericFunctions.GridSearch(thresholdVals, integTimeVals, threshold2Vals)
 
+results = GS.ActualGridSearch()
+
+
+
+"""
 # Save the pandas pannels
 df1 = pd.Panel.to_frame(df_eff)
 df1.to_csv('../dataDUNE/resultsFullSim/efficiencies_'+str(trigDur)+'.csv', sep=',')
@@ -81,3 +86,4 @@ plottingFunctions.plotGridSearch(panel=df_eff,noise=noise, trigDur=trigDur,
 plottingFunctions.plotGridSearch(panel=df_fake,noise=noise, trigDur=trigDur,
                                  location=locationPlots, isEff=False)
 
+"""

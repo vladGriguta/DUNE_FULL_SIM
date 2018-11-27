@@ -53,7 +53,7 @@ def DivideDataByRes(timeSN,timeAr,simulationTime,resolution=50):
 
 
 
-def GridSearch(events, eventsSN, thresholdVals, integTimeVals, threshold2Vals, trigDur,resolution,noise,time_and_PD,simulationTime):
+class GridSearch:
 
     """
     Function that searches through a grid of threshold and integTime vals and
@@ -79,58 +79,64 @@ def GridSearch(events, eventsSN, thresholdVals, integTimeVals, threshold2Vals, t
         and the rate of fake triggers per second for each combination of the 
         variables in the grid search
     """
+    def __init__(self, thresholdVals, integTimeVals, threshold2Vals):
+        self.thresholdVals = thresholdVals
+        self.integTimeVals = integTimeVals
+        self.threshold2Vals = threshold2Vals
+        
     
-    def sendStaticData():
-        return events, eventsSN, trigDur,resolution,noise,time_and_PD,simulationTime
-    
+    def ActualGridSearch(self):
 
-    index1 = list(map(str, thresholdVals))
-    index2 = list(map(str, integTimeVals))
-    index3 = list(map(str, threshold2Vals))
+        from pathos.multiprocessing import ProcessingPool as Pool
+        
+        x = self.thresholdVals
+        y = self.integTimeVals
+        z = self.threshold2Vals
+        
+        y_,x_,z_ = np.meshgrid(y,x,z)
+        x = x_.flatten()
+        y = y_.flatten()
+        z = z_.flatten()
+        
+        results = []
+        
+        import CandidateSearch
+        results.append(Pool().map(CandidateSearch.Candidates.CandidateSearch,x,y,z))
+        
+        return results
+        
+        
+        """
+        index1 = list(map(str, self.thresholdVals))
+        index2 = list(map(str, self.integTimeVals))
+        index3 = list(map(str, self.threshold2Vals))
+        
+        df_eff = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
+        df_fake = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
+        
+        progress = 0    
+        for i in range(0,len(thresholdVals)):
+            for j in range(0,len(integTimeVals)):
+                for k in range(0,len(threshold2Vals)):
+                    
+                    # Print progress if applicable
+                    if(((i+1)*(j+1)*(k+1)) % int((len(thresholdVals)+1)*(len(integTimeVals)+1)
+                        *(len(threshold2Vals)+1)/10) == 0):
+                        progress += 10
+                        print(str(progress) + ' % Completed!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+                    
+                    threshold_local = thresholdVals[i]
+                    integTime_local = integTimeVals[j]
+                    threshold2_local = threshold2Vals[k]
+                    
+                    [SNCandidates, fakeTrig, _] = Candidates(events, eventsSN, threshold_local, 
+                        integTime_local, threshold2_local, trigDur,resolution,noise,time_and_PD)
+                    
+                    df_eff[str(threshold_local)].iloc[j][k] = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
+                    df_fake[str(threshold_local)].iloc[j][k] = (len(fakeTrig)* 1000000 / simulationTime)
+                    print('This run was finished')
+                    
+        """
     
-    df_eff = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
-    df_fake = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
-    """
-    progress = 0    
-    for i in range(0,len(thresholdVals)):
-        for j in range(0,len(integTimeVals)):
-            for k in range(0,len(threshold2Vals)):
-                
-                # Print progress if applicable
-                if(((i+1)*(j+1)*(k+1)) % int((len(thresholdVals)+1)*(len(integTimeVals)+1)
-                    *(len(threshold2Vals)+1)/10) == 0):
-                    progress += 10
-                    print(str(progress) + ' % Completed!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-                
-                threshold_local = thresholdVals[i]
-                integTime_local = integTimeVals[j]
-                threshold2_local = threshold2Vals[k]
-                
-                [SNCandidates, fakeTrig, _] = Candidates(events, eventsSN, threshold_local, 
-                    integTime_local, threshold2_local, trigDur,resolution,noise,time_and_PD)
-                
-                df_eff[str(threshold_local)].iloc[j][k] = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
-                df_fake[str(threshold_local)].iloc[j][k] = (len(fakeTrig)* 1000000 / simulationTime)
-                print('This run was finished')
-                
-    """
     
-    from pathos.multiprocessing import ProcessingPool as Pool
-
-    x = thresholdVals
-    y = integTimeVals
-    z = threshold2Vals
     
-    y_,x_,z_ = np.meshgrid(y,x,z)
-    x = x_.flatten()
-    y = y_.flatten()
-    z = z_.flatten()
-    
-    results = []
-    
-    import CandidateSearch
-    results.append(Pool().map(CandidateSearch.Candidates,x,y,z))
-    
-
-    
-    return df_eff, df_fake, results
