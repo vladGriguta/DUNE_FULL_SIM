@@ -129,86 +129,15 @@ class GridSearch:
         import multiprocessing
         import itertools
         
-        n_proc=1
+        freeProc = 2
+        n_proc=multiprocessing.cpu_count()-freeProc
+        print('Code will run using '+str(n_proc)+' processors. This is equal to the total number of processors available minus '+str(freeProc))
         with multiprocessing.Pool(processes=n_proc) as pool:
             result_list=pool.starmap(CandidateSearch.Candidates, zip(varyingData, itertools.repeat(constantData)))
             pool.close()
 
         return result_list
-    
-    
-        """
-        import multiprocessing
-        import itertools
-        import numpy as np
-        
-        def some_function(n, constant):
-            print('calculating {1:.2f}*{0:.2f}^2'.format(n, constant))
-            f = constant*n**2
-            print('done')
-            return f
-        
-        data=np.arange(1,100)
-        constant=8
-        
-        #find out how many processes are available
-        n_proc=multiprocessing.cpu_count()
-        #run some function in parallel
-        with multiprocessing.Pool(processes=n_proc) as pool:
-                result=pool.starmap(some_function, zip(data, itertools.repeat(constant)))
-                pool.close()
-        """
-        
-        
-        
-        """
-        import multiprocessing
-        import numpy as np
-        
-        data_pairs = [ [3,5], [4,3], [7,3], [1,6] ]
-        
-        # define what to do with each data pair ( p=[3,5] ), example: calculate product 
-        def myfunc(p):
-            product_of_list = np.prod(p)
-            return product_of_list
-        
-        if __name__ == '__main__':
-            pool = multiprocessing.Pool(processes=4)
-            result_list = pool.map(myfunc, data_pairs)
-            print(result_list)
-        """
-        
-        """
-        index1 = list(map(str, self.thresholdVals))
-        index2 = list(map(str, self.integTimeVals))
-        index3 = list(map(str, self.threshold2Vals))
-        
-        df_eff = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
-        df_fake = pd.Panel(items = index1,major_axis = index2, minor_axis = index3)
-        
-        progress = 0    
-        for i in range(0,len(thresholdVals)):
-            for j in range(0,len(integTimeVals)):
-                for k in range(0,len(threshold2Vals)):
-                    
-                    # Print progress if applicable
-                    if(((i+1)*(j+1)*(k+1)) % int((len(thresholdVals)+1)*(len(integTimeVals)+1)
-                        *(len(threshold2Vals)+1)/10) == 0):
-                        progress += 10
-                        print(str(progress) + ' % Completed!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-                    
-                    threshold_local = thresholdVals[i]
-                    integTime_local = integTimeVals[j]
-                    threshold2_local = threshold2Vals[k]
-                    
-                    [SNCandidates, fakeTrig, _] = Candidates(events, eventsSN, threshold_local, 
-                        integTime_local, threshold2_local, trigDur,resolution,noise,time_and_PD)
-                    
-                    df_eff[str(threshold_local)].iloc[j][k] = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
-                    df_fake[str(threshold_local)].iloc[j][k] = (len(fakeTrig)* 1000000 / simulationTime)
-                    print('This run was finished')
-                    
-        """
+
     
     
     

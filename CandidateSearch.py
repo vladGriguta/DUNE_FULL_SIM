@@ -134,14 +134,19 @@ def Candidates(varyingData,constantData):
                         SNTrig.append(time_of_event)
                     else:
                         fakeTrig.append(time_of_event)
-            """
-            else:
-                print('The event did not succeed due to second threshold')
-            """
                     
         photonsPassed += int(events[i-1-integBins])
     
     eff = (100 * np.sum(SNCandidates>0)/len(SNCandidates))
     fakeRate = (len(fakeTrig)* 1000000 / simulationTime)
+    
+    print('\n\n\n The results for the following inputs: \nthreshold='+str(threshold)+'\nintegrationTime = '+str(integTime)+
+      '\n threshold2 = '+str(threshold2)+'\n trigDuration = '+str(trigDur)+ '\nare:\n'+
+      'Efficiency of SN detection: '+ str(eff)+ '\nNumber of fake triggers: '+str(fakeRate)+'\n')
+    
+    locationResults = '../dataDUNE/10SecondsResults/'+'ParallelImp'+str('_v1_')+'.txt'
+    f = open(locationResults, 'w')
+    f.write(str(threshold)+','+str(integTime)+','+str(threshold2)+','+str(eff)+','+str(fakeRate))
+    f.close()
     
     return eff, fakeRate

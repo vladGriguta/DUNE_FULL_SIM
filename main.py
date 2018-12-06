@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 import genericFunctions
 import readFiles
-import CandidateSearch
 
 
 
@@ -60,10 +59,10 @@ SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, thre
                                             time_and_PD=time_and_PD)
 """
 
-thresholdVals = [18]
-integTimeVals = [2]
-threshold2Vals = [[1,5]]
-trigDur = 2.5
+thresholdVals = [25,35,55,70,90]
+integTimeVals = [0.1,0.2,0.3,0.4,0.5]
+threshold2Vals = [[3,2],[5,2],[4,3],[2,3]]
+trigDur = 0
 
 
 GS = genericFunctions.GridSearch(thresholdVals, integTimeVals, threshold2Vals,events,
@@ -77,20 +76,3 @@ locationResults = '../dataDUNE/10SecondsResults'
 with open(locationResults+'resultsParallelImplementation.txt', 'w') as f:
     for item in results:
         f.write("%s\n" % item)
-
-
-"""
-# Save the pandas pannels
-df1 = pd.Panel.to_frame(df_eff)
-df1.to_csv('../dataDUNE/resultsFullSim/efficiencies_'+str(trigDur)+'.csv', sep=',')
-df2 = pd.Panel.to_frame(df_fake)
-df2.to_csv('../dataDUNE/resultsFullSim/fakeRate_'+str(trigDur)+'.csv', sep=',')
-
-import plottingFunctions
-locationPlots = '../dataDUNE/10SecondsResults'
-plottingFunctions.plotGridSearch(panel=df_eff,noise=noise, trigDur=trigDur,
-                                 location=locationPlots, isEff=True)
-plottingFunctions.plotGridSearch(panel=df_fake,noise=noise, trigDur=trigDur,
-                                 location=locationPlots, isEff=False)
-
-"""
