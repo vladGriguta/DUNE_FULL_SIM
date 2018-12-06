@@ -60,9 +60,9 @@ SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, thre
                                             time_and_PD=time_and_PD)
 """
 
-thresholdVals = [18,22]
-integTimeVals = [2,3]
-threshold2Vals = [[1,5],[2,3]]
+thresholdVals = [18]
+integTimeVals = [2]
+threshold2Vals = [[1,5]]
 trigDur = 2.5
 
 

@@ -96,9 +96,9 @@ class GridSearch:
 
         #from pathos.multiprocessing import ProcessingPool as Pool
         
-        x = self.thresholdVals
-        y = self.integTimeVals
-        z = self.threshold2Vals
+        thresholdVals = self.thresholdVals
+        integTimeVals = self.integTimeVals
+        threshold2Vals = self.threshold2Vals
         events = self.events
         eventsSN = self.eventsSN
         trigDur = self.trigDur
@@ -107,10 +107,16 @@ class GridSearch:
         time_and_PD = self.time_and_PD
         simulationTime = self.simulationTime
         
-        y_,x_,z_ = np.meshgrid(y,x,z)
-        x = x_.flatten()
-        y = y_.flatten()
-        z = z_.flatten()
+        x = []
+        y = []
+        z = []
+        
+        for i in range(len(thresholdVals)):
+            for j in range(len(integTimeVals)):
+                for k in range(len(threshold2Vals)):
+                    x.append(thresholdVals[i])
+                    y.append(integTimeVals[j])
+                    z.append(threshold2Vals[k])
         
         varyingData = []
         for i in range(len(x)):
@@ -123,13 +129,14 @@ class GridSearch:
         import multiprocessing
         import itertools
         
-        n_proc=multiprocessing.cpu_count()
+        n_proc=1
         with multiprocessing.Pool(processes=n_proc) as pool:
             result_list=pool.starmap(CandidateSearch.Candidates, zip(varyingData, itertools.repeat(constantData)))
             pool.close()
 
         return result_list
-        
+    
+    
         """
         import multiprocessing
         import itertools
