@@ -30,16 +30,7 @@ def DivideDataByRes(timeSN,timeAr,simulationTime,resolution=50):
     """
     time_and_PD = np.concatenate((np.array(timeSN[['time','pmt']]),np.array(timeAr[['time','pmt']])))
     time_and_PD = np.array(time_and_PD[time_and_PD[:,0].argsort()])
-    # Need to solve the issue with the memory usage.
-    # But maybe not this way. Maybe should think of a way to compute which PMTs
-    # are being hit for each time frame inside Candidates
-    
-    """
-    events = []
-    for i in range(0,int(simulationTime/resolution)):
-        events.append([])
-        events[i].append(0)
-    """
+
     events = np.zeros((int(simulationTime/resolution)))    
     for i in range(0,len(time_and_PD)):
         events[int(time_and_PD[i][0]/resolution)] += 1

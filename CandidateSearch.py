@@ -144,9 +144,9 @@ def Candidates(varyingData,constantData):
       '\n threshold2 = '+str(threshold2)+'\n trigDuration = '+str(trigDur)+ '\nare:\n'+
       'Efficiency of SN detection: '+ str(eff)+ '\nNumber of fake triggers: '+str(fakeRate)+'\n')
     
-    locationResults = '../dataDUNE/10SecondsResults/'+'ParallelImp'+str('_v1_')+'.txt'
-    f = open(locationResults, 'w')
-    f.write(str(threshold)+','+str(integTime)+','+str(threshold2)+','+str(eff)+','+str(fakeRate))
+    locationResults = '../dataDUNE/10SecondsResults/'+'ParallelImp_trig'+str(trigDur)+'_v1_'+'.txt'
+    f = open(locationResults, 'a+')
+    f.write(str(threshold)+','+str(integTime)+','+str(threshold2)+','+str(eff)+','+str(fakeRate)+'\n')
     f.close()
     
     return eff, fakeRate
