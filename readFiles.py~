@@ -55,7 +55,7 @@ def Read_Ar39_Oana():
 	return timeAr,nr_events_Ar
 	
 	
-def Read_SN_Oana():
+def Read_Ar39_Oana():
 	columnsOana = ['time','pmt','event','vuv']
 	timeSN = pd.read_csv('../100sData/SN_100s.csv',header=None,names=columnsOana)
 	timeSN = timeSN.sort_values('time')

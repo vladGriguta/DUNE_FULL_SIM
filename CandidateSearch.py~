@@ -149,4 +149,4 @@ def Candidates(varyingData,constantData):
     f.write(str(threshold)+','+str(integTime)+','+str(threshold2)+','+str(threshold_in_photons)+','+str(eff)+','+str(fakeRate)+'\n')
     f.close()
     
-    return threshold,integTime,threshold2,eff, fakeRate
+    return eff, fakeRate
