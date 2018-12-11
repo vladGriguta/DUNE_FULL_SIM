@@ -93,6 +93,7 @@ class GridSearch:
         
         freeProc = 14
         n_proc=multiprocessing.cpu_count()-freeProc
+        print('Code will run using '+str(n_proc)+' processors. This is equal to the total number of processors available minus '+str(freeProc))
         
         thresholdVals = self.thresholdVals
         integTimeVals = self.integTimeVals
@@ -122,16 +123,15 @@ class GridSearch:
         
         result_list = []
         for i in range(10):
-		initial = int(len(events)/10)*i
-		final = int(len(events)/10)*(i+1)
-		events_local = events[initial:final]
-
-	    	constantData = [events_local,eventsSN,trigDur,resolution,noise,time_and_PD,simulationTime]
-
-		print('Code will run using '+str(n_proc)+' processors. This is equal to the total number of processors available minus '+str(freeProc))
-		with multiprocessing.Pool(processes=n_proc) as pool:
-			result_list.append(pool.starmap(CandidateSearch.Candidates, zip(varyingData, itertools.repeat(constantData))))
-			pool.close()
+    		initial = int(len(events)/10)*i
+    		final = int(len(events)/10)*(i+1)
+    		events_local = events[initial:final]
+    
+    	    constantData = [events_local,eventsSN,trigDur,resolution,noise,time_and_PD,simulationTime]
+    
+    		with multiprocessing.Pool(processes=n_proc) as pool:
+    			result_list.append(pool.starmap(CandidateSearch.Candidates, zip(varyingData, itertools.repeat(constantData))))
+    			pool.close()
 
         return result_list
 
