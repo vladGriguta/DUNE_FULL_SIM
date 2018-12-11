@@ -123,15 +123,13 @@ class GridSearch:
         
         result_list = []
         for i in range(10):
-    		initial = int(len(events)/10)*i
-    		final = int(len(events)/10)*(i+1)
-    		events_local = events[initial:final]
-    
-    	    constantData = [events_local,eventsSN,trigDur,resolution,noise,time_and_PD,simulationTime]
-    
-    		with multiprocessing.Pool(processes=n_proc) as pool:
-    			result_list.append(pool.starmap(CandidateSearch.Candidates, zip(varyingData, itertools.repeat(constantData))))
-    			pool.close()
+            initial = int(len(events)/10)*i
+            final = int(len(events)/10)*(i+1)
+            events_local = events[initial:final]
+            constantData = [events_local,eventsSN,trigDur,resolution,noise,time_and_PD,simulationTime]
+            with multiprocessing.Pool(processes=n_proc) as pool:
+                result_list.append(pool.starmap(CandidateSearch.Candidates, zip(varyingData, itertools.repeat(constantData))))
+                pool.close()
 
         return result_list
 
