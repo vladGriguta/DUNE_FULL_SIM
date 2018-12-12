@@ -25,13 +25,13 @@ resolution = 0.05 # 50 nanoseconds
 # Call functions to read from files
 location = '../dataDUNE/10Seconds'
 print('Reading data from files... Simulation time = '+str(simulationTime/1000000)+' seconds')
-"""
+
 timeSN,nr_events_SN = readFiles.Read_SN(location)
 timeAr,nr_events_Ar = readFiles.Read_Ar39(location)
 """
 timeAr,nr_events_Ar = readFiles.Read_Ar39_Oana()
 timeSN,nr_events_SN = readFiles.Read_SN_Oana()
-
+"""
 print('Finished reading from files.')
 
 # Compute the noise (mean number of photons from Ar39 per microseconds)
@@ -63,7 +63,7 @@ SNCandidates, fakeTrig, SNTrig = genericFunctions.Candidates(events=events, thre
                                             time_and_PD=time_and_PD)
 """
 
-thresholdVals = 0.468 * [200,240,280]
+thresholdVals =  [0.468 *200,0.468 *240,0.468 *280]
 integTimeVals = [0.3,0.4,0.5,0.6,0.7]
 threshold2Vals = [[0,0],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6]] # [number_PDs,PhotonRateInEach]
 trigDur = 0

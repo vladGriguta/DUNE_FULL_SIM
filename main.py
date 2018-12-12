@@ -18,20 +18,20 @@ import readFiles
 
 
 # Define constant parameters in the simulation
-simulationTime = 100*1000000  # 10 seconds in microseconds
+simulationTime = 10*1000000  # 10 seconds in microseconds
 resolution = 0.05 # 50 nanoseconds
 
 
 # Call functions to read from files
 location = '../dataDUNE/10Seconds'
 print('Reading data from files... Simulation time = '+str(simulationTime/1000000)+' seconds')
-"""
+
 timeSN,nr_events_SN = readFiles.Read_SN(location)
 timeAr,nr_events_Ar = readFiles.Read_Ar39(location)
 """
 timeAr,nr_events_Ar = readFiles.Read_Ar39_Oana()
 timeSN,nr_events_SN = readFiles.Read_SN_Oana()
-
+"""
 print('Finished reading from files.')
 
 # Compute the noise (mean number of photons from Ar39 per microseconds)
